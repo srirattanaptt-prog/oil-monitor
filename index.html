@@ -151,10 +151,10 @@
 
             stations.forEach(st => {
                 const fuels = [
-                    { label: 'DIESEL B7', pct: parseFloat(st.data[5]), color: '#2563eb', icon: 'fa-droplet' }, 
-                    { label: 'GASOHOL 95', pct: parseFloat(st.data[6]), color: '#ea580c', icon: 'fa-bolt' },  
-                    { label: 'GASOHOL 91', pct: parseFloat(st.data[7]), color: '#14532d', icon: 'fa-leaf' },  
-                    { label: 'E20', pct: parseFloat(st.data[8]), color: '#4ade80', icon: 'fa-seedling' }      
+                    { label: 'DIESEL B7', pct: parseFloat(st.data[5]), color: '#2563eb' }, 
+                    { label: 'GASOHOL 95', pct: parseFloat(st.data[6]), color: '#ea580c' },  
+                    { label: 'GASOHOL 91', pct: parseFloat(st.data[7]), color: '#14532d' },  
+                    { label: 'E20', pct: parseFloat(st.data[8]), color: '#4ade80' }      
                 ];
                 
                 const updateTime = st.data[9] || '--';
