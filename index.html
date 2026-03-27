@@ -120,7 +120,7 @@
     </div>
 
     <script>
-        // ⚠️ ลิงก์ CSV จากหน้า Public_Dashboard ของคุณ
+
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR6QSbrQ3k_OqpB4IYIS5AuongHTUgkpiuuIbXmMeXSoPbqTa15ezdul4kvRPHOdEt59RlW-AN6qqnr/pub?output=csv';
 
         async function fetchSheetData() {
@@ -157,10 +157,7 @@
             grid.innerHTML = '';
 
             stations.forEach(st => {
-                /**
-                 * 📍 อัปเดตลิงก์รูปภาพให้ตรงกับชื่อไฟล์ใน GitHub
-                 * ผมอิงตามชื่อไฟล์จาก Screenshot ที่คุณส่งมาครับ
-                 */
+
                 const fuels = [
                     { label: 'DIESEL B7', pct: parseFloat(st.data[1]), color: '#2563eb', img: 'Diesel.png' }, 
                     { label: 'GASOHOL 95', pct: parseFloat(st.data[2]), color: '#ea580c', img: 'G95.png' },  
