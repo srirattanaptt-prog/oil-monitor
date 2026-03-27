@@ -154,7 +154,7 @@
 
                 renderDashboard(stations);
                 document.getElementById('error-box').classList.add('hidden');
-                document.getElementById('last-sync').innerText = `อัปเดต ${new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
+                document.getElementById('last-sync').innerText = `${new Date().toLocaleTimeString('th-TH', {hour: '2-digit', minute:'2-digit'})}`;
             } catch (error) {
                 console.error(error);
                 document.getElementById('error-box').classList.remove('hidden');
