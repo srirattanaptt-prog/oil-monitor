@@ -30,14 +30,14 @@
             background: #ffffff;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.8);
-            transition: transform 0.3s ease;
         }
 
         .progress-track {
             background-color: #f1f5f9;
-            height: 18px;
+            height: 20px;
             border-radius: 999px;
             overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
         }
         
         .progress-fill {
@@ -52,7 +52,7 @@
 
         .station-indicator {
             position: relative;
-            padding-left: 1rem;
+            padding-left: 1.2rem;
         }
         .station-indicator::before {
             content: '';
@@ -64,17 +64,23 @@
             background: #2563eb;
             border-radius: 10px;
         }
+        
+        .fuel-logo {
+            height: 42px;
+            width: auto;
+            object-fit: contain;
+        }
     </style>
 </head>
 <body class="pb-12">
-    <!-- ส่วนหัว: โลโก้ใหญ่เด่นชัด ธีม Minimal สบายตา -->
+    <!-- Header -->
     <div class="bg-white/90 backdrop-blur-xl sticky top-0 z-50 px-6 py-7 border-b border-slate-100 shadow-sm">
         <div class="max-w-xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-5">
                 <div class="relative flex items-center justify-center">
-                    <div class="absolute w-24 h-24 bg-blue-50 rounded-full opacity-30 animate-pulse"></div>
+                    <div class="absolute w-20 h-20 bg-blue-50 rounded-full opacity-30 animate-pulse"></div>
                     <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Ptt_logo.svg" 
-                         alt="PTT Logo" class="w-20 h-20 object-contain logo-glow relative z-10">
+                         alt="PTT Logo" class="w-16 h-16 object-contain logo-glow relative z-10">
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-slate-800 tracking-tight leading-none">ระดับน้ำมันคงเหลือ</h1>
@@ -85,7 +91,7 @@
                 </div>
             </div>
             <div class="text-right">
-                <div id="last-sync" class="text-xs font-medium text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl">
+                <div id="last-sync" class="text-xs font-medium text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 italic">
                     --:--
                 </div>
             </div>
@@ -94,31 +100,28 @@
 
     <div class="max-w-xl mx-auto px-5 mt-10">
         <div id="dashboard-grid" class="flex flex-col gap-10">
-            <!-- Loading -->
             <div id="loading-state" class="text-center py-24">
                 <div class="inline-block w-10 h-10 border-4 border-slate-100 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-                <p class="text-slate-400 text-sm font-light italic">กำลังประมวลผลข้อมูลล่าสุด...</p>
+                <p class="text-slate-400 text-sm font-light italic">กำลังประมวลผลข้อมูลที่ปลอดภัย...</p>
             </div>
         </div>
 
-        <!-- Error box -->
-        <div id="error-box" class="hidden mt-8 p-6 bg-white border border-red-50 border-b-4 border-b-red-200 rounded-3xl text-red-400 text-center text-sm shadow-sm">
+        <div id="error-box" class="hidden mt-8 p-6 bg-white border border-red-50 border-b-4 border-red-200 rounded-3xl text-red-400 text-center text-sm shadow-sm">
              <i class="fas fa-wifi-slash mb-2 block text-xl"></i>
              การเชื่อมต่อขัดข้อง กำลังพยายามใหม่โดยอัตโนมัติ...
         </div>
     </div>
 
-    <!-- Footer -->
-    <div class="mt-20 text-center">
+    <div class="mt-20 text-center pb-8">
         <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-white rounded-full shadow-sm border border-slate-100">
-            <span class="w-2 h-2 bg-emerald-400 rounded-full status-pulse"></span>
-            <span class="text-[9px] text-slate-400 uppercase tracking-[0.3em] font-medium">PTT Smart System Online</span>
+            <span class="w-2 h-2 bg-emerald-400 rounded-full status-pulse shadow-[0_0_8px_rgba(52,211,153,0.3)]"></span>
+            <span class="text-[9px] text-slate-400 uppercase tracking-[0.3em] font-medium">PTT Kantharalak Smart System Online</span>
         </div>
     </div>
 
     <script>
-        // ลิงก์ CSV ที่ Publish จาก Google Sheets
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRSz-ggV9zT4RprMQNm5xU4HUU3QF_Lt2SGKDzlMYTArevwHpeokSShbclvG3YPDqfHGTbefKjEYReC/pub?output=csv';
+        // ⚠️ ลิงก์ CSV จากหน้า Public_Dashboard ของคุณ
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR6QSbrQ3k_OqpB4IYIS5AuongHTUgkpiuuIbXmMeXSoPbqTa15ezdul4kvRPHOdEt59RlW-AN6qqnr/pub?output=csv';
 
         async function fetchSheetData() {
             try {
@@ -128,13 +131,17 @@
                                  .map(line => line.split(',').map(cell => cell.replace(/^"|"$/g, '').trim()))
                                  .filter(row => row.length > 1);
 
-                if (rows.length < 4) throw new Error("Data Error");
+                const stations = [];
+                for (let i = 1; i < rows.length; i++) {
+                    if (rows[i][0]) {
+                        stations.push({
+                            name: rows[i][0],
+                            data: rows[i]
+                        });
+                    }
+                }
 
-                const stations = [
-                    { name: rows[1][0] || "บ้านกระบี่", data: rows[1] },
-                    { name: rows[2][0] || "ศรีรัตนะ", data: rows[2] },
-                    { name: rows[3][0] || "แยกบ้านจาน", data: rows[3] }
-                ];
+                if (stations.length === 0) throw new Error("No Data Found");
 
                 renderDashboard(stations);
                 document.getElementById('error-box').classList.add('hidden');
@@ -150,20 +157,26 @@
             grid.innerHTML = '';
 
             stations.forEach(st => {
+                /**
+                 * 📍 อัปเดตลิงก์รูปภาพให้ตรงกับชื่อไฟล์ใน GitHub
+                 * ผมอิงตามชื่อไฟล์จาก Screenshot ที่คุณส่งมาครับ
+                 */
                 const fuels = [
-                    { label: 'DIESEL B7', pct: parseFloat(st.data[5]), color: '#2563eb' }, 
-                    { label: 'GASOHOL 95', pct: parseFloat(st.data[6]), color: '#ea580c' },  
-                    { label: 'GASOHOL 91', pct: parseFloat(st.data[7]), color: '#14532d' },  
-                    { label: 'E20', pct: parseFloat(st.data[8]), color: '#4ade80' }      
+                    { label: 'DIESEL B7', pct: parseFloat(st.data[1]), color: '#2563eb', img: 'Diesel.png' }, 
+                    { label: 'GASOHOL 95', pct: parseFloat(st.data[2]), color: '#ea580c', img: 'G95.png' },  
+                    { label: 'GASOHOL 91', pct: parseFloat(st.data[3]), color: '#14532d', img: 'G91.png' },  
+                    { label: 'E20', pct: parseFloat(st.data[4]), color: '#4ade80', img: 'E20.png' }      
                 ];
                 
-                const updateTime = st.data[9] || '--';
+                const updateTime = st.data[5] || '--';
+                const nextRefill = st.data[6] || '';
+                
                 const plans = [
-                    { label: 'Diesel', vol: parseFloat(st.data[11]) },
-                    { label: '95', vol: parseFloat(st.data[12]) },
-                    { label: '91', vol: parseFloat(st.data[13]) },
-                    { label: 'E20', vol: parseFloat(st.data[14]) }
-                ].filter(p => p.vol > 0);
+                    { label: 'Diesel', vol: parseFloat(st.data[7]) },
+                    { label: '95', vol: parseFloat(st.data[8]) },
+                    { label: '91', vol: parseFloat(st.data[9]) },
+                    { label: 'E20', vol: parseFloat(st.data[10]) }
+                ].filter(p => !isNaN(p.vol) && p.vol > 0);
 
                 const card = document.createElement('div');
                 card.className = 'fuel-card p-9';
@@ -171,20 +184,20 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-10">
                         <div class="station-indicator">
-                            <h2 class="text-2xl font-semibold text-slate-800 tracking-tight">${st.name}</h2>
-                            <p class="text-[10px] text-slate-400 font-light mt-1 uppercase tracking-widest italic">Update: ${updateTime}</p>
+                            <h2 class="text-2xl font-bold text-slate-800 tracking-tight leading-none">${st.name}</h2>
+                            <p class="text-[10px] text-slate-400 font-medium mt-2 uppercase tracking-widest italic opacity-70">อัปเดตล่าสุด: ${updateTime}</p>
                         </div>
-                        <div class="w-2.5 h-2.5 bg-emerald-400 rounded-full status-pulse shadow-[0_0_10px_rgba(52,211,153,0.4)]"></div>
+                        <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full status-pulse"></div>
                     </div>
 
-                    <div class="space-y-9">
+                    <div class="space-y-10">
                         ${fuels.map(f => renderGauge(f)).join('')}
                     </div>
 
                     ${plans.length > 0 ? `
-                    <div class="mt-10 p-5 bg-slate-50/50 rounded-3xl border border-slate-100">
+                    <div class="mt-10 p-5 bg-slate-50/80 rounded-3xl border border-slate-100 shadow-inner">
                         <div class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-4 flex items-center">
-                            <i class="fas fa-truck-moving mr-2 text-blue-500"></i> แผนรถน้ำมันเข้า
+                            <i class="fas fa-truck-moving mr-2 text-blue-600"></i> แผนรถน้ำมันเข้า ${nextRefill ? `(${nextRefill})` : ''}
                         </div>
                         <div class="grid grid-cols-2 gap-y-3">
                             ${plans.map(p => `
@@ -208,18 +221,18 @@
             
             return `
                 <div>
-                    <div class="flex justify-between mb-3 items-end">
-                        <div class="flex items-center gap-3">
-                            <i class="fas ${f.icon} text-[10px] opacity-60" style="color: ${f.color}"></i>
-                            <span class="text-sm font-medium text-slate-600 uppercase tracking-tight">${f.label}</span>
+                    <div class="flex justify-between mb-4 items-center">
+                        <div class="flex items-center">
+                            <img src="${f.img}" alt="${f.label}" class="fuel-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <span class="hidden text-sm font-bold text-slate-600 ml-2">${f.label}</span>
                         </div>
                         <div class="text-right leading-none">
-                            <span class="text-3xl font-medium text-slate-800 tracking-tighter">${Math.floor(progress)}</span>
-                            <span class="text-[10px] text-slate-300 font-bold ml-0.5">%</span>
+                            <span class="text-3xl font-extrabold text-slate-800 tracking-tighter">${Math.round(progress)}</span>
+                            <span class="text-[10px] text-slate-400 font-bold ml-0.5">%</span>
                         </div>
                     </div>
                     <div class="progress-track">
-                        <div class="progress-fill shadow-sm" style="width: ${progress}%; background-color: ${f.color}; opacity: 0.85;"></div>
+                        <div class="progress-fill shadow-sm" style="width: ${progress}%; background-color: ${f.color}; opacity: 0.95;"></div>
                     </div>
                 </div>
             `;
