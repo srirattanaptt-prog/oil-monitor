@@ -221,24 +221,12 @@
         }
 
         function renderGauge(f) {
-            let pct = f.pct;
-            if (pct > 0 && pct <= 1.05) { pct = pct * 100; }
-            const progress = Math.min(Math.max(pct, 0), 100);
-            
+            let currentPct = parseFloat(f.pct) || 0;
+    
             return `
-                <div>
-                    <div class="flex justify-between mb-4 items-end">
-                        <div class="flex items-center">
-                            <img src="${f.img}" alt="${f.label}" class="fuel-logo">
-                        </div>
-                        <div class="text-right leading-none">
-                            <span class="text-4xl font-extrabold text-slate-800 tracking-tighter">${Math.round(progress)}</span>
-                            <span class="text-[11px] text-slate-400 font-bold ml-1">%</span>
-                        </div>
-                    </div>
-                    <div class="progress-track shadow-inner">
-                        <div class="progress-fill" style="width: ${progress}%; background-color: ${f.color};"></div>
-                    </div>
+                <div class="flex items-baseline">
+                    <span class="text-2xl font-bold">${Math.round(currentPct)}</span>
+                    <span class="text-[10px] text-slate-400 font-bold ml-0.5">%</span>
                 </div>
             `;
         }
