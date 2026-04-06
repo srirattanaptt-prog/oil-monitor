@@ -246,8 +246,8 @@
         function renderGauge(f) {
             let pct = parseFloat(f.pct) || 0;
             let incomingPct = parseFloat(f.inc) || 0;
-            if (pct > 0 && pct <= 1.05) { pct = pct * 100; }
-            if (incomingPct > 0 && incomingPct <= 1.05) { incomingPct = incomingPct * 100; }
+            // if (pct > 0 && pct <= 1.05) { pct = pct * 100; }
+            // if (incomingPct > 0 && incomingPct <= 1.05) { incomingPct = incomingPct * 100; }
 
             const progress = Math.min(Math.max(pct, 0), 100);
             const totalProjected = Math.min(Math.max(pct + incomingPct, 0), 100);
